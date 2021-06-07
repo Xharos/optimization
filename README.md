@@ -26,6 +26,8 @@ Date need to be formated as follow : `YYYY-MM-DD HH:00:00` with HH between 00 an
 
 This project is compiled under java 8 in order to deploy it more easily. Make sure to install Java 8 and set java.exe to your PATH variables.
 
+Download from this [permalink](https://doi.org/10.5281/zenodo.620228) the ``network_edges.csv`` and ``load_signal.csv`` that are too heavy for git and place these files under ``src/main/resources/``.
+
 
 ---
 # Docker
