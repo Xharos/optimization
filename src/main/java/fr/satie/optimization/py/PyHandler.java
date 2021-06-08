@@ -35,9 +35,7 @@ public class PyHandler {
 				executor.execute(CommandLine.parse("python " + PATH + file.getFileName() + ".py " + String.join(" ", args)));
 				return outputStream.toString().trim();
 			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(1);
-				return null;
+				return "crash";
 			}
 		}, OptimizerPools.getExecutor());
 	}

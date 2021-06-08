@@ -42,12 +42,13 @@ public class EntryPoint {
 		final boolean debug      = params.containsKey("debug") && !params.get("debug").isEmpty() && Boolean.parseBoolean(params.get("debug").get(0));
 		final boolean generators = params.containsKey("generator") && !params.get("generator").isEmpty() && Boolean.parseBoolean(params.get("generator").get(0));
 		String        date       = params.containsKey("date") && params.get("date").size() == 2 ? params.get("date").get(0) + " " + params.get("date").get(1) : "2012-01-01 00:00:00";
+		String        start      = params.containsKey("start") && params.get("start").size() == 2 ? params.get("start").get(0) + " " + params.get("start").get(1) : "2012-01-01 00:00:00";
 		int           worker     = params.containsKey("worker") && params.get("worker").size() == 1 ? Integer.parseInt(params.get("worker").get(0)) : 2;
 		String        algo       = params.containsKey("algo") && params.get("algo").size() == 1 ? params.get("algo").get(0) : "scipy";
 		if (!algo.equals("scipy") && !algo.equals("admm"))
 			algo = "scipy";
 		if (params.containsKey("date") && params.get("date").size() == 1)
 			date = "all";
-		new Optimizer(gui, debug, generators, date, algo, worker);
+		new Optimizer(gui, debug, generators, date, algo, worker, start);
 	}
 }

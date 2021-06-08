@@ -45,7 +45,7 @@ public class Optimizer {
 	private final        LiteDatabase database;
 	private              Graph        graph;
 
-	public Optimizer(boolean gui, boolean debug, boolean generator, String date, String algo, int worker) {
+	public Optimizer(boolean gui, boolean debug, boolean generator, String date, String algo, int worker, String start) {
 		if (instance == null)
 			instance = this;
 		this.manager = new DataManager();
@@ -54,6 +54,7 @@ public class Optimizer {
 		LOGGER.info(" - gui        = {}", gui);
 		LOGGER.info(" - date       = {}", date);
 		LOGGER.info(" - algo       = {}", algo);
+		LOGGER.info(" - start      = {}", start);
 		LOGGER.info(" - debug      = {}", debug);
 		LOGGER.info(" - worker     = {}", worker);
 		LOGGER.info(" - generators = {}", generator);
@@ -103,7 +104,7 @@ public class Optimizer {
 				e.printStackTrace();
 			}
 		} else
-			computeAllConsumptions(worker, algo);
+			computeAllConsumptions(worker, algo, start);
 		if (!gui)
 			System.exit(0);
 	}
@@ -116,7 +117,7 @@ public class Optimizer {
 		return LOGGER;
 	}
 
-	public void computeAllConsumptions(int workerSize, String algo) {
+	public void computeAllConsumptions(int workerSize, String algo, String start) {
 		CompletableFuture<Void> result = CompletableFuture.runAsync(() -> {
 			try {
 				List<CompletableFuture<String[]>> work  = new CopyOnWriteArrayList<>();
@@ -125,6 +126,9 @@ public class Optimizer {
 					String date = queue.poll();
 					if (date == null)
 						break;
+					if (!start.equals("2012-01-01 00:00:00"))
+						if (date.compareTo(start) < 0)
+							continue;
 					work.add(computeConsumption(algo, date));
 					LOGGER.trace("Add future at date {} to workers.", date);
 					if (work.size() == workerSize) {
@@ -145,7 +149,10 @@ public class Optimizer {
 									if (re[1].contains("Values in x were outside")) {
 										LOGGER.warn("Scipy : values in x were outside bounds, try again for date {}", re[0]);
 										queue.add(re[0]);
-									} else
+									} else if (re[1].equals("crash")) {
+										LOGGER.error("Python process crash on date {}", re[0]);
+										queue.add(re[0]);
+									}else
 										database.post(re[1], algo, re[0].replace(" ", "-").replace(":", "-"));
 								work.remove(fut);
 							}

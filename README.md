@@ -29,6 +29,9 @@ This project is compiled under java 8 in order to deploy it more easily. Make su
 Download from this [permalink](https://doi.org/10.5281/zenodo.620228) the ``network_edges.csv`` and ``load_signal.csv`` that are too heavy for git and place these files under ``src/main/resources/``.
 
 
+Comment the first line of these two files with a #.
+
+
 ---
 # Docker
 
@@ -36,7 +39,7 @@ To create a local docker image, make sure to execute ``gradlew clean jar`` first
 
 Then run :
 
-```docker build . -t optimization[:tag]```
+```docker build --no-cache . -t optimization[:tag]```
 
 You can run this image with custom jvm arguments through env var.
 

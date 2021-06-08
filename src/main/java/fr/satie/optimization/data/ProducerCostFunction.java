@@ -1,6 +1,5 @@
 package fr.satie.optimization.data;
 
-import fr.satie.optimization.Optimizer;
 import fr.satie.optimization.csv.data.Generator;
 import fr.satie.optimization.graph.GeneratorColor;
 import java.text.DecimalFormat;
@@ -62,7 +61,7 @@ public class ProducerCostFunction {
 			double sum = total.stream().mapToDouble(d -> d).sum();
 			if (sum < power)
 				v.nodesId.forEach(id -> generators.put(id, GeneratorColor.GREEN));
-			else if (sum > power && sum - total.get(total.size() -1) < power)
+			else if (sum > power && sum - total.get(total.size() - 1) < power)
 				v.nodesId.forEach(id -> generators.put(id, GeneratorColor.ORANGE));
 			else
 				v.nodesId.forEach(id -> generators.put(id, GeneratorColor.RED));
