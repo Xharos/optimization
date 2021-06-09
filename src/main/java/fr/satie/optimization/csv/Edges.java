@@ -51,6 +51,7 @@ public class Edges {
 			if (!from.getCountry().equals(to.getCountry())) {
 				int indexFrom = countries.indexOf(from.getCountry().getName().toLowerCase(Locale.ROOT));
 				int indexTo   = countries.indexOf(to.getCountry().getName().toLowerCase(Locale.ROOT));
+				Optimizer.getLogger().warn("capacity in line is {}", edge.getLimit());
 				lineCapacity[Math.min(indexFrom, indexTo)][Math.max(indexFrom, indexTo)] += edge.getLimit();
 			}
 		});

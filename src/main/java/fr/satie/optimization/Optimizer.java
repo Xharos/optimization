@@ -226,7 +226,7 @@ public class Optimizer {
 		}, OptimizerPools.getExecutor()).thenApply(result -> {
 			try {
 				String path = Generators.DATA_PATH + date.replace(" ", "-").replace(":", "-") + ".txt";
-				Files.delete(Paths.get(path));
+				//Files.delete(Paths.get(path));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

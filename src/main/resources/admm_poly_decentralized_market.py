@@ -143,7 +143,7 @@ t = np.linspace(int(ma + ma/8), int(mi - ma/8), 10000)
 plt.figure()
 plt.subplot(211)
 for n in range(int(N/2)):
-    plt.plot(t, [A[n]*((P + P0[n])**2) for P in t], '--', label=sys.argv[2 + n])
+    plt.plot(t, [A[n]*((P + P0[n])**2) for P in t], '--')
 
 for n in range(int(N/2)):
     nymax = max(producer[n][1])
@@ -152,12 +152,12 @@ for n in range(int(N/2)):
         ymax = nymax
     if (nxmax > xmax):
         xmax = nxmax
-    plt.plot(producer[n][0], producer[n][1], label=sys.argv[2 + n])
+    plt.plot(producer[n][0], producer[n][1])
 
 t = np.linspace(0, xmax, 100)
 for n in range(int(N/2)):
     poly = np.poly1d([producerp[n][0], producerp[n][1], producerp[n][2]])#producerp[n][1], producerp[n][2]])
-    plt.plot(t, [np.polyval(poly, t[i]) for i in range (len(t))], label="Poly2 for " + str(sys.argv[2 + n]))
+    plt.plot(t, [np.polyval(poly, t[i]) for i in range (len(t))])
 for i in range(len(P[:, -1])):
     if (i < int(N/2)):
         p0 = -P0[i]
