@@ -109,7 +109,7 @@ public class LiteDatabase {
 			Optimizer.getLogger().debug(st);
 			statement.executeUpdate("create table " + algo + " (id string PRIMARY KEY, " + st + ")");
 		} catch (Exception e) {
-			Optimizer.getLogger().error("SQLite init statement failed...");
+			Optimizer.getLogger().warn("SQLite init statement failed...");
 			e.printStackTrace();
 			System.exit(1);
 		}

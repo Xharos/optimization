@@ -33,12 +33,11 @@ public class GraphDisplay {
 		graph.setAttribute("ui.antialias");
 		gen.addSink(graph);
 		gen.begin();
-		Optimizer.getInstance().linkGraph(graph);
 		Optimizer.getInstance().getManager().getEdges().getNodes().forEach(line -> {
 			graph.addEdge(line.toString(), Integer.toString(line.getFrom()), Integer.toString(line.getTo()));
 		});
+		Optimizer.getInstance().linkGraph(graph);
 		Viewer viewer = graph.display(false);
-		View   view   = viewer.getDefaultView();
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(event);

@@ -34,8 +34,8 @@ def getProducer(id):
 for i in range(2, len(sys.argv)):
     getProducer(sys.argv[i])
 
-m_iter      = 200       # max problem iteration
-mp_iter     = 30       # max partage problem iteration
+m_iter      = 400       # max problem iteration
+mp_iter     = 20        # max partage problem iteration
 
 def admm(rho, rhop):
 

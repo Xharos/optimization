@@ -78,9 +78,10 @@ def sum_fn(P):
         result.append(np.polyval(poly, P[i+ len(consumer)]))
     return sum(result)
 
+options = {"maxiter": 5000}
 constraint = LinearConstraint(np.ones(len(consumer) + len(producer)), lb=0, ub=0) #sum of Pn equals 0, from doc lb <= A.dot(x) <= ub, ca ca marche
 bounds = [(int(ma + ma/4), 0) for n in range(len(consumer))] + [(0, max(producer[n][0])) for n in range(len(producer))]
-res = minimize(sum_fn, 100*np.ones(len(consumer) + len(producer)), method='SLSQP', constraints=constraint, bounds=bounds)
+res = minimize(sum_fn, 100*np.ones(len(consumer) + len(producer)), method='SLSQP', constraints=constraint, bounds=bounds, options=options)
 #print(res)
 #for i in range(len(res.x)):
 #    if (i < len(consumer)):
@@ -93,5 +94,8 @@ res = minimize(sum_fn, 100*np.ones(len(consumer) + len(producer)), method='SLSQP
 #print("Sum Pn =", sum(res.x))
 #plt.show()
 
-for i in range(0, len(producer)):
-    print(res.x[len(consumer) + i])
+if(res.success):
+    for i in range(0, len(producer)):
+        print(res.x[len(consumer) + i])
+else:
+    print("failed")

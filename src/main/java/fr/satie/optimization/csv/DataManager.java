@@ -39,15 +39,6 @@ public class DataManager {
 		}, OptimizerPools.getExecutor());
 	}
 
-	public Map<Country, Double> computeSyncConsumption(String date) {
-		Map<Country, Double> consu = new HashMap<>();
-		getNetworks().getNodes().forEach(node -> {
-			double nodeConsu = loadBusFromDate(date, node.getId());
-			consu.compute(node.getCountry(), (k, v) -> v == null ? nodeConsu : v + nodeConsu);
-		});
-		return consu;
-	}
-
 	public Edges getEdges() {
 		return edges;
 	}

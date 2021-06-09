@@ -13,6 +13,7 @@ import fr.satie.optimization.utils.OptimizerPools;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.PriorityQueue;
@@ -44,6 +45,7 @@ public class Optimizer {
 	private final        boolean      debug;
 	private final        LiteDatabase database;
 	private              Graph        graph;
+	private volatile     boolean      graphInitialize;
 
 	public Optimizer(boolean gui, boolean debug, boolean generator, String date, String algo, int worker, String start) {
 		if (instance == null)
@@ -73,6 +75,14 @@ public class Optimizer {
 				LOGGER.trace("UI event handled asynchronously...");
 			}, OptimizerPools.getExecutor());
 		}
+		if (algo.equals("admm")) {
+			manager.getEdges().computeLineCapacities();
+			if (gui) {
+				while (!graphInitialize) {
+				}
+				manager.getEdges().displayLine(graph);
+			}
+		}
 		if (date.equals("all")) {
 			LOGGER.info("Create database file");
 			database = new LiteDatabase(algo);
@@ -92,14 +102,16 @@ public class Optimizer {
 			}
 			try {
 				LOGGER.trace("Get interpolation result from {} :\n{}", algo, result.get());
-				String[] powerPerCountry = result.get()[1].split("\n");
+				String[]     powerPerCountry = result.get()[1].split("\n");
+				List<String> countries       = Arrays.stream(Country.values()).filter(c -> !c.equals(Country.KOSOVO)).map(c -> c.getName().toLowerCase(Locale.ROOT)).sorted().collect(Collectors.toList());
 				if (gui && generator)
-					for (int i = 0; i < powerPerCountry.length; i++)
-						manager.getGenerators().getCost(Country.values()[i]).getGeneratorBelow(Double.parseDouble(powerPerCountry[i])).forEach((id, color) -> {
-							graph.getNode(String.valueOf(id)).setAttribute("ui.style", "size: 6px, 6px; " +
-									"shape: box; " +
-									"fill-color: " + color.getColor() + ";");
-						});
+					if (!powerPerCountry[0].equals("crash") && !powerPerCountry[0].equals("failed"))
+						for (int i = 0; i < powerPerCountry.length; i++)
+							manager.getGenerators().getCost(Country.getEnum(countries.get(i))).getGeneratorBelow(Double.parseDouble(powerPerCountry[i])).forEach((id, color) -> {
+								graph.getNode(String.valueOf(id)).setAttribute("ui.style", "size: 6px, 6px; " +
+										"shape: box; " +
+										"fill-color: " + color.getColor() + ";");
+							});
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -152,7 +164,10 @@ public class Optimizer {
 									} else if (re[1].equals("crash")) {
 										LOGGER.error("Python process crash on date {}", re[0]);
 										queue.add(re[0]);
-									}else
+									} else if (re[1].equals("failed")) {
+										LOGGER.error("Scipy optimize failed to converge on date {}", re[0]);
+										queue.add(re[0]);
+									} else
 										database.post(re[1], algo, re[0].replace(" ", "-").replace(":", "-"));
 								work.remove(fut);
 							}
@@ -202,6 +217,11 @@ public class Optimizer {
 			String[] args = new String[countries.length + 1];
 			args[0] = date.replace(" ", "-").replace(":", "-");
 			System.arraycopy(countries, 0, args, 1, countries.length);
+			StringBuilder builder = new StringBuilder();
+			for (String arg : args) {
+				builder.append(arg).append(" ");
+			}
+			LOGGER.debug(builder.toString());
 			return PyHandler.exec(algo.equals("scipy") ? PyFile.SCIPY_OPTIMIZE_MARKET : PyFile.ADMM_MARKET, args);
 		}, OptimizerPools.getExecutor()).thenApply(result -> {
 			try {
@@ -214,6 +234,10 @@ public class Optimizer {
 		});
 	}
 
+	public Graph getGraph() {
+		return graph;
+	}
+
 	public DataManager getManager() {
 		return manager;
 	}
@@ -224,6 +248,7 @@ public class Optimizer {
 
 	public void linkGraph(Graph graph) {
 		this.graph = graph;
+		graphInitialize = true;
 	}
 
 	public void loadCSV() {

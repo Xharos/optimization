@@ -32,8 +32,8 @@ public class Networks implements GraphNode {
 			Optimizer.getLogger().debug("Successfully load {} buses from file.", networks.size());
 	}
 
-	public GraphNodal getNode(int index) {
-		return networks.get(index);
+	public GraphNodal getNode(int buseId) {
+		return networks.stream().filter(net -> net.getId() == buseId).findFirst().orElse(null);
 	}
 
 	public Stream<GraphNodal> getNodes() {

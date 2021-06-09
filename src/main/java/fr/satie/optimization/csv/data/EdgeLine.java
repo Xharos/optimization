@@ -29,6 +29,10 @@ public class EdgeLine {
 		return from;
 	}
 
+	public double getLimit() {
+		return limit;
+	}
+
 	public int getTo() {
 		return to;
 	}
