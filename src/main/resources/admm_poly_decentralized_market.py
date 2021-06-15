@@ -21,7 +21,7 @@ with open(DATA + date + ".txt", 'r') as reader:
         P0.append(float(line.replace(',', '.')))
         A.append(random.randint(1, 9)*coe)
 
-with open(DATA + "linet.txt", 'r') as reader:
+with open(DATA + "line.txt", 'r') as reader:
     i = 0
     for line in reader.readlines():
         parts = line.split("\t")
@@ -32,9 +32,6 @@ with open(DATA + "linet.txt", 'r') as reader:
 for i in range(int(N/2)):
     for j in range(i+1, int(N/2)):
         lineCap[j][i] = lineCap[i][j]
-
-for j in range(int(N/2)):
-    print(lineCap[j])
 
 def getProducer(id):
     producerp.append([])
@@ -50,7 +47,7 @@ def getProducer(id):
 for i in range(2, len(sys.argv)):
     getProducer(sys.argv[i])
 
-m_iter      = 6000       # max problem iteration
+m_iter      = 1000       # max problem iteration
 mp_iter     = 20        # max partage problem iteration
 
 def admm(rho, rhop):
@@ -71,6 +68,8 @@ def admm(rho, rhop):
                 tmp_b       = t[m, k] - tm[0, k] + pm[0, k] - mu[0, k]/rhop
                 t[m, k+1]   = (rho*tmp_a + rhop*tmp_b)/(rho + rhop)
                 if(n != m and n < int(N/2) and m < int(N/2)):
+                    t[m, k+1] = 0
+                if(n != m and n >= int(N/2) and m >= int(N/2)):
                     t[m, k+1] = 0
                 if(n != m and n % int(N/2) == m % int(N/2)):
                     if(t[m, k+1] >= max(producer[min(n, m)][0])):
@@ -107,33 +106,35 @@ def admm(rho, rhop):
         if(k > 5):
             #if(abs(np.trace(T[:, :, k+1])) < 0.1):
             cvg = [abs(P[int(N/2) + i, k+1]) - abs(P[int(N/2) + i, k]) for i in range(int(N/2))]
-            if(all(abs(e) < 1e-5 for e in cvg)):
-                if(sum(P[:, k+1]) < 0.01):
-                    #if(abs(np.trace(T[:, :, k+1])) < 0.2):
+            if(all(abs(e) < 1e-1 for e in cvg)):
+                if(sum(P[:, k+1]) < 0.5):
+                    #if(abs(np.trace(T[:, :, k+1])) < 0.02):
                     return (P[:, 0:k+1], T[:, :, k+1])
     return (P, T[:, :, -1])
 
 ro  = []
 ti  = []
 sup = []
-rho = 0.005
+rho = 0.05
 start = time.time()
 (P, T) = admm(rho, rho)
-for e in P[int(N/2):, -1]:
-    print(e)
 end = time.time()
 ro.append(i)
 ti.append(end-start)
 sup.append(sum(P[:, -1]))
-print("New test for rho = rho' =", rho)
-print("Result is =", P[:, -1])
-print("Sum Pn =", sup[-1])
-print("Executed in", end-start)
+print("Launch P2P energetic market solver with ADMM (rho = rho' =", rho,")")
+print("")
+print("ADMM converged in", "{:.2f}".format(end-start), "ms")
+print("Computed Pn for each agent =", np.array2string(P[:, -1], precision=1, separator=',', suppress_small=True))
+print("Primal residual        < 1e-5")
+print("Dual residual : Sum Pn =", "{:.6f}".format(sup[-1]))
+print("Trade matrix trace =", "{:.6f}".format(np.trace(T)))
 print("")
 np.set_printoptions(threshold=np.inf)
-matri = np.array2string(T, precision=1, separator=',', suppress_small=True).replace('\n', '').split(']')
-for i in range(len(matri)):
-    print(matri[i].replace('\n', ''))
+matri = np.array2string(T, precision=1, separator=',', suppress_small=True)
+print(matri)
+#for i in range(len(matri)):
+#    print(matri[i].replace('\n', '')+"]")
 #print(np.array2string(T[int(N/2):,int(N/2):], precision=2, separator=',', suppress_small=True).replace('\n', ''))
 for i in range(int(N/2), N):
     for j in range(i+1, N):
@@ -148,7 +149,7 @@ t = np.linspace(int(ma + ma/8), int(mi - ma/8), 10000)
 plt.figure()
 plt.subplot(211)
 for n in range(int(N/2)):
-    plt.plot(t, [A[n]*((P + P0[n])**2) for P in t], '--', label="consu in "+str(sys.argv[2 + n]))
+    plt.plot(t, [A[n]*((P + P0[n])**2) for P in t], '--', label="poly consu in "+str(sys.argv[2 + n]))
 
 for n in range(int(N/2)):
     nymax = max(producer[n][1])
